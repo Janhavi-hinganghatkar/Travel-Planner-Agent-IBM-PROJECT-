@@ -1,0 +1,40 @@
+!pip install requests --quiet
+
+import requests
+from datetime import datetime, timedelta
+
+AΡΙ ΚΕΥ = '54c0be33/3514bfdaa9104557250208'
+
+def get_weather(city):
+    url = f"http://api.weatherapi.com/v1/forecast.json?key={API_KEY}&q={city}&days=3"
+    r = requests.get(url)
+    if r.ok:
+        data = r.json()['forecast']['forecastday']
+        return [(d['date'], d['day']['condition']['text'], d['day']['avgtemp_c']) for d in data]
+    else:
+        return [("Error", "Couldn't fetch weather", "-")]
+
+def plan_trip():
+    interest = input("Beach / Mountain / Heritage? ").lower()
+    days = int(input("Trip duration (days)? "))
+    choices = {
+        "beach": ["Goa", "Pondicherry", "Kovalam"],
+        "mountain": ["Manali", "Leh", "Darjeeling"],
+        "heritage": ["Jaipur", "Hampi", "Varanasi"]
+    }
+    options = choices.get(interest, ["Goa"])
+    for i, place in enumerate(options): print(f"{i+1}. {place}")
+    dest = options[int(input("Choose destination (1-3): ")) - 1]
+    
+    print(f"\n📍 Destination: {dest}")
+    print("🌤 Weather Forecast:")
+    for d in get_weather(dest):
+        print(f"{d[0]}: {d[1]} | Avg Temp: {d[2]}°C")
+        
+    print("\n📅 Itinerary:")
+    acts = ["Sightseeing", "Food tour", "Cultural visit", "Leisure"]
+    for i in range(days):
+        date = (datetime.today() + timedelta(days=i)).strftime('%Y-%m-%d')
+        print(f"{date}: {acts[i % len(acts)]}")
+
+plan_trip()
